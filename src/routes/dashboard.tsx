@@ -21,6 +21,21 @@ export const Route = createFileRoute("/dashboard")({
 const COLORS = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)"];
 const tip = { contentStyle: { background: "var(--card)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 } };
 
+const KPI_DEFS = [
+  { key: "totalSales", label: "Total Sales", hint: "Revenue — the full value of everything sold before costs are deducted." },
+  { key: "totalProfit", label: "Total Profit", hint: "What remains after costs. Sales minus expenses; the money you actually keep." },
+  { key: "orders", label: "Total Orders", hint: "Number of transactions. One customer buying three times counts as three orders." },
+  { key: "aov", label: "Avg Order Value", hint: "AOV — average spend per order. Total sales divided by number of orders." },
+  { key: "customers", label: "Total Customers", hint: "Unique buyers in the period. Repeat purchases from one person count once." },
+] as const;
+
+const HEALTH_DEFS: Record<string, string> = {
+  "Revenue Performance": "Compares sales growth between the first and second half of your period. 20% growth or more earns the full 25 points.",
+  "Profitability": "Measures profit margin — profit as a share of sales. A 25% margin earns the full 25 points.",
+  "Customer Activity": "Based on average orders per customer. 4+ orders each earns the full 25 points; lower frequency scores less.",
+  "Product Performance": "Rewards a profitable product mix: how many products make money, and how evenly revenue is spread across them.",
+};
+
 function Dashboard() {
   const [rows, setRows] = useState<Row[] | null>(null);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
@@ -106,12 +121,16 @@ function Dashboard() {
         ) : (
           <>
             <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
-              {[["Total Sales", money(data.totalSales)], ["Total Profit", money(data.totalProfit)], ["Total Orders", data.orders.toLocaleString()], ["Avg Order Value", money(data.aov)], ["Total Customers", data.customers.toLocaleString()]].map(([k, v]) => (
-                <div key={k} className="rounded-xl border bg-card p-5 shadow-card">
-                  <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{k}</div>
-                  <div className="mt-2 font-display text-2xl font-bold">{v}</div>
-                </div>
-              ))}
+              {KPI_DEFS.map(({ key, label, hint }) => {
+                const v = data[key as keyof typeof data];
+                return (
+                  <div key={key} className="rounded-xl border bg-card p-5 shadow-card">
+                    <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+                    <div className="mt-2 font-display text-2xl font-bold">{key === "orders" || key === "customers" ? (v as number).toLocaleString() : money(v as number)}</div>
+                    <p className="mt-2 text-xs leading-snug text-muted-foreground">{hint}</p>
+                  </div>
+                );
+              })}
             </div>
 
             <div className="grid gap-6 lg:grid-cols-3">
@@ -179,14 +198,18 @@ function HealthCard({ data }: { data: ReturnType<typeof analyze> }) {
         </div>
         <span className="mt-3 rounded-full px-3 py-1 text-sm font-semibold" style={{ color, background: `color-mix(in oklch, ${color} 12%, transparent)` }}>{data.status}</span>
       </div>
-      <div className="mt-5 space-y-3">
+      <div className="mt-5 space-y-4">
         {parts.map(([k, v]) => (
           <div key={k}>
             <div className="flex justify-between text-xs"><span className="text-muted-foreground">{k}</span><span className="font-medium">{v.toFixed(0)}/25</span></div>
             <div className="mt-1 h-1.5 rounded-full bg-muted"><div className="h-full rounded-full bg-primary" style={{ width: pct(v / 25) }} /></div>
+            <p className="mt-1.5 text-[11px] leading-snug text-muted-foreground">{HEALTH_DEFS[k]}</p>
           </div>
         ))}
       </div>
+      <p className="mt-5 border-t pt-3 text-[11px] leading-relaxed text-muted-foreground">
+        Each component is scored out of 25 and summed for the total. Benchmarks used: 20% sales growth, 25% profit margin, 4+ orders per customer, and a balanced product mix.
+      </p>
     </Panel>
   );
 }
