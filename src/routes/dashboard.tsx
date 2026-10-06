@@ -106,12 +106,16 @@ function Dashboard() {
         ) : (
           <>
             <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
-              {[["Total Sales", money(data.totalSales)], ["Total Profit", money(data.totalProfit)], ["Total Orders", data.orders.toLocaleString()], ["Avg Order Value", money(data.aov)], ["Total Customers", data.customers.toLocaleString()]].map(([k, v]) => (
-                <div key={k} className="rounded-xl border bg-card p-5 shadow-card">
-                  <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{k}</div>
-                  <div className="mt-2 font-display text-2xl font-bold">{v}</div>
-                </div>
-              ))}
+              {KPI_DEFS.map(({ key, label, hint }) => {
+                const v = data[key as keyof typeof data];
+                return (
+                  <div key={key} className="rounded-xl border bg-card p-5 shadow-card">
+                    <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+                    <div className="mt-2 font-display text-2xl font-bold">{key === "orders" || key === "customers" ? (v as number).toLocaleString() : money(v as number)}</div>
+                    <p className="mt-2 text-xs leading-snug text-muted-foreground">{hint}</p>
+                  </div>
+                );
+              })}
             </div>
 
             <div className="grid gap-6 lg:grid-cols-3">
@@ -179,14 +183,18 @@ function HealthCard({ data }: { data: ReturnType<typeof analyze> }) {
         </div>
         <span className="mt-3 rounded-full px-3 py-1 text-sm font-semibold" style={{ color, background: `color-mix(in oklch, ${color} 12%, transparent)` }}>{data.status}</span>
       </div>
-      <div className="mt-5 space-y-3">
+      <div className="mt-5 space-y-4">
         {parts.map(([k, v]) => (
           <div key={k}>
             <div className="flex justify-between text-xs"><span className="text-muted-foreground">{k}</span><span className="font-medium">{v.toFixed(0)}/25</span></div>
             <div className="mt-1 h-1.5 rounded-full bg-muted"><div className="h-full rounded-full bg-primary" style={{ width: pct(v / 25) }} /></div>
+            <p className="mt-1.5 text-[11px] leading-snug text-muted-foreground">{HEALTH_DEFS[k]}</p>
           </div>
         ))}
       </div>
+      <p className="mt-5 border-t pt-3 text-[11px] leading-relaxed text-muted-foreground">
+        Each component is scored out of 25 and summed for the total. Benchmarks used: 20% sales growth, 25% profit margin, 4+ orders per customer, and a balanced product mix.
+      </p>
     </Panel>
   );
 }
