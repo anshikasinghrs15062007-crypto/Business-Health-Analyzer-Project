@@ -21,6 +21,21 @@ export const Route = createFileRoute("/dashboard")({
 const COLORS = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)"];
 const tip = { contentStyle: { background: "var(--card)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 } };
 
+const KPI_DEFS = [
+  { key: "totalSales", label: "Total Sales", hint: "Revenue — the full value of everything sold before costs are deducted." },
+  { key: "totalProfit", label: "Total Profit", hint: "What remains after costs. Sales minus expenses; the money you actually keep." },
+  { key: "orders", label: "Total Orders", hint: "Number of transactions. One customer buying three times counts as three orders." },
+  { key: "aov", label: "Avg Order Value", hint: "AOV — average spend per order. Total sales divided by number of orders." },
+  { key: "customers", label: "Total Customers", hint: "Unique buyers in the period. Repeat purchases from one person count once." },
+] as const;
+
+const HEALTH_DEFS: Record<string, string> = {
+  "Revenue Performance": "Compares sales growth between the first and second half of your period. 20% growth or more earns the full 25 points.",
+  "Profitability": "Measures profit margin — profit as a share of sales. A 25% margin earns the full 25 points.",
+  "Customer Activity": "Based on average orders per customer. 4+ orders each earns the full 25 points; lower frequency scores less.",
+  "Product Performance": "Rewards a profitable product mix: how many products make money, and how evenly revenue is spread across them.",
+};
+
 function Dashboard() {
   const [rows, setRows] = useState<Row[] | null>(null);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
