@@ -1,26 +1,43 @@
-# Business_Health_Analysi
+# Business Health Analyzer
 
-Implement exactly the screenshot and nothing else
+Developed By:
+Anshika Singh
+B.Tech CSE (Data Science)
+PSIT Kanpur
 
-This project was built with [Lovable](https://lovable.dev).
+## Overview
 
-**Live app**: https://pixel-perfect-display-3806.lovable.app
+Business Health Analyzer is a Business Intelligence platform that helps businesses analyze sales performance, profitability, customer activity and business trends through interactive dashboards and visual analytics.
 
-## Build with Lovable
+## Features
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/5d0d95a2-8c0d-421b-b2dc-ca5c4867229c).
+- CSV Data Upload
+- KPI Dashboard
+- Revenue Analysis
+- Profit Analysis
+- Product Performance Insights
+- Business Health Score
+- Business Recommendations
+- Interactive Charts
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+## Technology Stack
 
-## Development
+- React
+- TypeScript
+- Tailwind CSS
+- Data Visualization
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+## Objectives
 
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
-```
+- Analyze business performance
+- Measure profitability
+- Track key performance indicators
+- Provide business insights
+- Support decision-making
+
+## Future Scope
+
+- Sales Forecasting
+- Customer Segmentation
+- Inventory Optimization
+- Predictive Analytics
