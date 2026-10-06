@@ -33,7 +33,8 @@ export function parseCsv(text: string): { rows: Row[]; error?: string } {
     rows.push({ date, sales, profit, quantity, product: get(r, "Product") || "Unknown", category: get(r, "Category") || "Unknown", region: get(r, "Region") || "Unknown", customer: get(r, "Customer") || "Unknown" });
   }
   if (!rows.length) return { rows: [], error: "No valid rows found. Check date and number formats." };
-  return { rows, error: bad ? undefined : undefined };
+  void bad;
+  return { rows };
 }
 
 export function sampleCsv(): string {
@@ -49,7 +50,7 @@ export function sampleCsv(): string {
   for (let i = 0; i < 600; i++) {
     const m = Math.floor(rnd() * 12);
     const d = new Date(2025, m, 1 + Math.floor(rnd() * 28));
-    const [p, c, price] = products[Math.floor(rnd() * products.length)];
+    const [p, c, price] = products[Math.floor(rnd() * products.length)]!;
     const q = 1 + Math.floor(rnd() * 5);
     const sales = Math.round(price * q * (0.9 + rnd() * 0.2 + m * 0.02));
     const profit = Math.round(sales * (c === "Stationery" ? 0.35 : c === "Furniture" ? 0.18 : 0.12) * (0.4 + rnd()));
@@ -111,7 +112,7 @@ export function analyze(rows: Row[]) {
   if (weakRegion && regions.length > 1) insights.push({ tone: "warn", text: `${weakRegion.name} region lags behind at ${pct(weakRegion.sales / totalSales)} of revenue — consider targeted promotions.` });
   const byMargin = [...categories].sort((a, b) => b.profit / b.sales - a.profit / a.sales);
   if (byMargin[0]) insights.push({ tone: "info", text: `${byMargin[0].name} has the highest margin (${pct(byMargin[0].profit / byMargin[0].sales)}). Push more volume here.` });
-  if (byMargin.length > 1) { const w = byMargin[byMargin.length - 1]; insights.push({ tone: "warn", text: `${w.name} has the lowest margin (${pct(w.profit / w.sales)}). Review pricing or supplier costs.` }); }
+  if (byMargin.length > 1) { const w = byMargin[byMargin.length - 1]!; insights.push({ tone: "warn", text: `${w.name} has the lowest margin (${pct(w.profit / w.sales)}). Review pricing or supplier costs.` }); }
   insights.push({ tone: growth >= 0 ? "good" : "warn", text: `Average monthly sales ${growth >= 0 ? "grew" : "fell"} ${pct(Math.abs(growth))} in the second half of the period.` });
   const losers = products.filter((p) => p.profit <= 0);
   if (losers.length) insights.push({ tone: "warn", text: `${losers.length} product(s) are unprofitable: ${losers.slice(0, 3).map((l) => l.name).join(", ")}.` });
