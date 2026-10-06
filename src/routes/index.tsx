@@ -29,12 +29,12 @@ function Landing() {
       <section className="relative overflow-hidden bg-hero text-ink-foreground">
         <div className="absolute inset-0 grid-lines" />
         <header className="relative mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
-          <div className="flex items-center gap-2 font-display text-lg font-semibold"><Activity className="h-5 w-5 text-primary" /> Business Health Analyzer</div>
+          <div className="flex items-center gap-2 font-display text-lg font-semibold"><Activity className="h-5 w-5 text-sidebar-primary" /> Business Health Analyzer</div>
           <Button asChild size="sm"><Link to="/dashboard">Open app</Link></Button>
         </header>
         <div className="relative mx-auto grid max-w-6xl gap-12 px-6 pb-24 pt-12 md:grid-cols-2 md:pt-20">
           <div>
-            <p className="mb-4 text-sm font-medium uppercase tracking-widest text-primary">Sales analytics for small business</p>
+            <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-sidebar-primary">Sales analytics for small business</p>
             <h1 className="text-4xl font-bold leading-tight md:text-6xl">Know how healthy your business really is.</h1>
             <p className="mt-6 max-w-lg text-lg opacity-75">Upload your sales data and get KPIs, charts, a health score out of 100 and clear recommendations — in under a minute.</p>
             <div className="mt-8 flex flex-wrap gap-3">
@@ -45,7 +45,7 @@ function Landing() {
             <div className="flex items-center gap-6">
               <svg viewBox="0 0 120 120" className="h-32 w-32 -rotate-90">
                 <circle cx="60" cy="60" r="50" fill="none" stroke="currentColor" strokeOpacity=".12" strokeWidth="12" />
-                <circle cx="60" cy="60" r="50" fill="none" stroke="var(--primary)" strokeWidth="12" strokeLinecap="round" strokeDasharray={`${0.82 * 314} 314`} />
+                <circle cx="60" cy="60" r="50" fill="none" stroke="var(--sidebar-primary)" strokeWidth="12" strokeLinecap="round" strokeDasharray={`${0.82 * 314} 314`} />
               </svg>
               <div><div className="font-display text-5xl font-bold">82</div><div className="text-sm opacity-70">Health score · Good</div></div>
             </div>
@@ -58,11 +58,13 @@ function Landing() {
         </div>
       </section>
       <section className="mx-auto max-w-6xl px-6 py-20">
-        <h2 className="text-3xl font-bold">Everything you need to read your numbers</h2>
+        <h2 className="text-3xl font-bold tracking-tight">Everything you need to read your numbers</h2>
         <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {features.map((f) => (
-            <div key={f.title} className="rounded-xl border bg-card p-6 shadow-card">
-              <f.icon className="h-6 w-6 text-primary" />
+            <div key={f.title} className="rounded-xl border bg-card p-6 shadow-card transition-shadow hover:shadow-lg">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent">
+                <f.icon className="h-5 w-5 text-primary" />
+              </div>
               <h3 className="mt-4 text-lg font-semibold">{f.title}</h3>
               <p className="mt-2 text-sm text-muted-foreground">{f.text}</p>
             </div>

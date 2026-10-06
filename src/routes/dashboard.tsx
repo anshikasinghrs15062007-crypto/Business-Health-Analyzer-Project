@@ -1,8 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useRef, useState } from "react";
-import { Activity, CheckCircle2, AlertTriangle, Info, Upload, Download, Sparkles, X } from "lucide-react";
+import { CheckCircle2, AlertTriangle, Info, Upload, Download, Sparkles, X, FileUp } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis, Legend } from "recharts";
 import { Button } from "@/components/ui/button";
+import { AppShell } from "@/components/app-shell";
 import { analyze, money, parseCsv, pct, REQUIRED, sampleCsv, type Row } from "@/lib/analytics";
 
 export const Route = createFileRoute("/dashboard")({
@@ -23,6 +24,7 @@ const tip = { contentStyle: { background: "var(--card)", border: "1px solid var(
 function Dashboard() {
   const [rows, setRows] = useState<Row[] | null>(null);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const [dragging, setDragging] = useState(false);
   const input = useRef<HTMLInputElement>(null);
   const data = useMemo(() => (rows ? analyze(rows) : null), [rows]);
 
@@ -44,16 +46,14 @@ function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen">
-      <header className="sticky top-0 z-10 bg-ink text-ink-foreground">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
-          <Link to="/" className="flex items-center gap-2 font-display font-semibold"><Activity className="h-5 w-5 text-primary" /> <span className="hidden sm:inline">Business Health Analyzer</span></Link>
-          {data && <Button size="sm" onClick={() => input.current?.click()}><Upload className="mr-1 h-4 w-4" /> New file</Button>}
-        </div>
-      </header>
+    <AppShell
+      title={data ? "Health Report" : "Data Import"}
+      status={data ? "Analyzed" : "Ready"}
+      actions={data ? <Button size="sm" onClick={() => input.current?.click()}><Upload className="mr-1 h-4 w-4" /> New file</Button> : undefined}
+    >
       <input ref={input} type="file" accept=".csv,text/csv" className="hidden" onChange={(e) => { onFile(e.target.files?.[0]); e.target.value = ""; }} />
 
-      <main className="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6">
+      <div className="mx-auto max-w-6xl space-y-6 p-8 lg:p-12">
         {msg && (
           <div className={`flex items-center gap-2 rounded-lg border px-4 py-3 text-sm ${msg.ok ? "border-success/30 bg-success/10" : "border-destructive/30 bg-destructive/10"}`}>
             {msg.ok ? <CheckCircle2 className="h-4 w-4 text-success" /> : <AlertTriangle className="h-4 w-4 text-destructive" />}
@@ -63,29 +63,52 @@ function Dashboard() {
         )}
 
         {!data ? (
-          <div
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={(e) => { e.preventDefault(); onFile(e.dataTransfer.files[0]); }}
-            className="flex flex-col items-center rounded-2xl border-2 border-dashed border-primary/30 bg-card p-10 text-center shadow-card sm:p-16"
-          >
-            <div className="rounded-full bg-accent p-4"><Upload className="h-8 w-8 text-primary" /></div>
-            <h1 className="mt-6 text-2xl font-bold sm:text-3xl">Upload your sales data</h1>
-            <p className="mt-2 max-w-md text-muted-foreground">Drag a CSV file here or choose one. Required columns:</p>
-            <div className="mt-4 flex max-w-lg flex-wrap justify-center gap-2">
-              {REQUIRED.map((c) => <span key={c} className="rounded-md bg-secondary px-2 py-1 font-mono text-xs">{c}</span>)}
+          <div className="mx-auto max-w-4xl space-y-8">
+            <div>
+              <h2 className="text-3xl font-bold tracking-tight">Upload your sales data</h2>
+              <p className="mt-2 text-muted-foreground">Import your business metrics to generate your real-time Health Score dashboard.</p>
             </div>
-            <div className="mt-8 flex flex-wrap justify-center gap-3">
-              <Button size="lg" onClick={() => input.current?.click()}>Choose CSV file</Button>
-              <Button size="lg" variant="outline" onClick={() => load(sampleCsv(), "Sample data")}><Sparkles className="mr-1 h-4 w-4" /> Use sample data</Button>
+
+            <div
+              onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+              onDragLeave={() => setDragging(false)}
+              onDrop={(e) => { e.preventDefault(); setDragging(false); onFile(e.dataTransfer.files[0]); }}
+              className={`group rounded-2xl border-2 border-dashed bg-card p-12 text-center transition-all sm:p-16 ${
+                dragging ? "border-primary bg-accent/40" : "border-input hover:border-primary hover:bg-accent/30"
+              }`}
+            >
+              <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-accent transition-transform group-hover:scale-110">
+                <FileUp className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold">Drop CSV file to analyze</h3>
+              <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">Drag and drop your sales export here, or use our sample dataset to explore.</p>
+
+              <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+                <Button size="lg" onClick={() => input.current?.click()}>Choose file</Button>
+                <Button size="lg" variant="outline" onClick={() => load(sampleCsv(), "Sample data")}>
+                  <Sparkles className="mr-1 h-4 w-4" /> Use sample data
+                </Button>
+              </div>
+
+              <div className="mt-10 border-t pt-8">
+                <p className="mb-4 text-xs font-bold uppercase tracking-widest text-muted-foreground">Required Columns</p>
+                <div className="flex flex-wrap justify-center gap-2">
+                  {REQUIRED.map((c) => (
+                    <span key={c} className="rounded-md border bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground">{c}</span>
+                  ))}
+                </div>
+                <button onClick={downloadSample} className="mt-6 inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline">
+                  <Download className="h-3 w-3" /> Download sample.csv
+                </button>
+              </div>
             </div>
-            <button onClick={downloadSample} className="mt-4 inline-flex items-center gap-1 text-sm text-primary hover:underline"><Download className="h-4 w-4" /> Download sample CSV</button>
           </div>
         ) : (
           <>
             <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
               {[["Total Sales", money(data.totalSales)], ["Total Profit", money(data.totalProfit)], ["Total Orders", data.orders.toLocaleString()], ["Avg Order Value", money(data.aov)], ["Total Customers", data.customers.toLocaleString()]].map(([k, v]) => (
                 <div key={k} className="rounded-xl border bg-card p-5 shadow-card">
-                  <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{k}</div>
+                  <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{k}</div>
                   <div className="mt-2 font-display text-2xl font-bold">{v}</div>
                 </div>
               ))}
@@ -124,8 +147,8 @@ function Dashboard() {
             </div>
           </>
         )}
-      </main>
-    </div>
+      </div>
+    </AppShell>
   );
 }
 
